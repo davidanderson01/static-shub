@@ -19,7 +19,8 @@ const rotatingWords = [
   "The Future",
   "The Next Generation",
   "The Next Wave",
-];"Awareness"
+  "Awareness"
+];
 const identityWords = ["You", "Us", "We", "I", "Ours"];
 const rotationInterval = 2000;
 let rotationCount = 4;

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090d">
+  <meta name="description" content="Create and explore procedural cosmic particle simulations in Cosmic Simulation Engine Ultra Pro Max.">
+  <title>Cosmic Simulation Engine Ultra Pro Max | Elevate-Craft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:wght@400;500;600&family=Dynalight&family=Nosifer&family=WindSong&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="cosmic-project-page">
+  <header class="site-header">
+    <a class="wordmark" href="index.html#home" aria-label="Elevate-Craft home">
+      <span class="wordmark-mark" aria-hidden="true"><img src="images/Elevate-Craft%20logo%20transparent-background.svg" alt=""></span>
+      <span>Elevate-Craft</span>
+    </a>
+    <nav class="cosmic-project-nav" aria-label="Project navigation">
+      <a href="index.html#craft">All ventures</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="cosmic-studio-main">
+      <div class="cosmic-studio-heading">
+        <div>
+          <p class="cosmic-studio-kicker">Cosmic Lab / Procedural Studio</p>
+          <h1 class="cosmic-studio-title">Cosmic Simulation Engine Ultra Pro Max</h1>
+        </div>
+        <p class="cosmic-studio-summary">Shape a universe. Watch it move.</p>
+      </div>
+
+      <section class="cosmic-studio-workspace" aria-label="Cosmic simulation workspace">
+        <div class="cosmic-studio-stage">
+          <div class="cosmic-stage-bar">
+            <span>LIVE PARTICLE FIELD</span>
+            <span id="particle-count" aria-live="polite">1,100 stars</span>
+          </div>
+          <div class="cosmic-canvas-frame">
+            <canvas id="cosmic-canvas" aria-label="Animated procedural cosmic particle simulation" role="img"></canvas>
+            <span class="cosmic-canvas-hint" aria-hidden="true">Drag to rotate</span>
+          </div>
+        </div>
+
+        <aside class="cosmic-controls" aria-label="Simulation controls">
+          <fieldset class="cosmic-control-group">
+            <legend>Formation</legend>
+            <div class="cosmic-mode-control" role="group" aria-label="Galaxy formation">
+              <button type="button" class="is-active" data-mode="spiral" aria-pressed="true">Spiral</button>
+              <button type="button" data-mode="ring" aria-pressed="false">Ring</button>
+              <button type="button" data-mode="elliptical" aria-pressed="false">Elliptical</button>
+            </div>
+          </fieldset>
+
+          <div class="cosmic-control-group">
+            <label class="cosmic-range-label" for="star-count">Star count <output id="star-count-value" for="star-count">1,100</output></label>
+            <input id="star-count" type="range" min="250" max="2400" step="50" value="1100">
+          </div>
+
+          <div class="cosmic-control-group">
+            <label class="cosmic-range-label" for="rotation-speed">Rotation <output id="rotation-speed-value" for="rotation-speed">45%</output></label>
+            <input id="rotation-speed" type="range" min="0" max="100" step="1" value="45">
+          </div>
+
+          <div class="cosmic-control-group">
+            <p class="cosmic-control-label" id="palette-label">Stellar palette</p>
+            <div class="cosmic-palette" role="group" aria-labelledby="palette-label">
+              <button type="button" class="is-active" data-color="#f1d48e" aria-label="Pale gold" aria-pressed="true" style="--swatch-color: #f1d48e"></button>
+              <button type="button" data-color="#83c9ee" aria-label="Nebula blue" aria-pressed="false" style="--swatch-color: #83c9ee"></button>
+              <button type="button" data-color="#e99bb8" aria-label="Nova rose" aria-pressed="false" style="--swatch-color: #e99bb8"></button>
+              <button type="button" data-color="#8ad8b6" aria-label="Ion green" aria-pressed="false" style="--swatch-color: #8ad8b6"></button>
+            </div>
+          </div>
+
+          <div class="cosmic-simulation-actions">
+            <button type="button" class="cosmic-action-button" id="toggle-simulation" aria-pressed="false">Pause simulation</button>
+            <button type="button" class="cosmic-action-button" id="randomize-simulation">Generate new universe</button>
+            <button type="button" class="cosmic-export-button" id="export-simulation">Export PNG</button>
+          </div>
+          <p class="cosmic-simulation-status" id="simulation-status" role="status">Simulation running</p>
+        </aside>
+      </section>
+
+      <p class="cosmic-studio-footnote">Procedural 2D particle model. Drag the field to rotate; export your current creation as a PNG.</p>
+    </div>
+  </main>
+
+  <footer class="cosmic-project-footer">
+    <a href="index.html#craft">Back to all ventures</a>
+  </footer>
+  <script src="cosmic-simulation.js" defer></script>
+</body>
+</html>

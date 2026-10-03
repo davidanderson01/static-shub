@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cosmic Particle Simulator Pro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #010105;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #f0f0f5;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Glassmorphic UI Panel */
+        #ui-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            width: 320px;
+            max-height: calc(100% - 30px);
+            overflow-y: auto;
+            background: rgba(8, 8, 20, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+            scrollbar-width: none;
+        }
+
+        #ui-panel::-webkit-scrollbar {
+            display: none;
+        }
+
+        #ui-panel.collapsed {
+            transform: translateX(-340px);
+            opacity: 0.3;
+        }
+
+        #toggle-panel-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            width: 42px;
+            height: 42px;
+            background: rgba(8, 8, 20, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            font-size: 1.1rem;
+        }
+
+        #ui-panel.collapsed + #toggle-panel-btn {
+            display: flex;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+        }
+
+        .panel-header h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: linear-gradient(45deg, #a12bef, #4a90e2, #00ffff, #ff007f);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.08);
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+            background: rgba(255,255,255,0.18);
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #80809b;
+            margin: 14px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #b0b0c5;
+            margin-bottom: 4px;
+        }
+
+        .control-group label span.val {
+            color: #00ffff;
+            font-family: monospace;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.08);
+            height: 5px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+            box-shadow: 0 0 6px #4a90e2;
+            transition: transform 0.1s, background 0.1s;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: #00ffff;
+        }
+
+        .grid-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #d0d0e0;
+            padding: 8px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn.active {
+            background: linear-gradient(135deg, rgba(161, 43, 239, 0.35), rgba(0, 255, 255, 0.35));
+            border-color: #00ffff;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
+        }
+
+        .pulse-btn {
+            background: linear-gradient(135deg, #7b1fa2, #e91e63);
+            border: none;
+            color: white;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            grid-column: span 2;
+        }
+
+        .pulse-btn:hover {
+            background: linear-gradient(135deg, #8e24aa, #f48fb1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(233, 30, 99, 0.5);
+        }
+
+        .pulse-btn:active {
+            transform: translateY(1px);
+        }
+
+        #interaction-tip {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(6, 6, 16, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8rem;
+            pointer-events: none;
+            text-align: center;
+            color: #aaaabf;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.6);
+        }
+
+        #interaction-tip span {
+            color: #00ffff;
+            font-weight: 600;
+        }
+
+        #perf-stats {
+            margin-top: 14px;
+            font-size: 0.72rem;
+            color: #65657a;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-panel">
+        <div class="panel-header">
+            <h1>COSMIC SIM PRO</h1>
+            <div class="close-btn" id="close-panel-btn">Hide</div>
+        </div>
+
+        <div class="section-title">Navigation Mode</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <div class="action-btn active" id="mode-vortex">Warp Core</div>
+                <div class="action-btn" id="mode-orbit">Rotate Camera</div>
+            </div>
+        </div>
+
+        <div class="section-title">Anomalies & Quantum Events</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <button class="action-btn pulse-btn" id="trigger-pulse">💥 DARK MATTER PULSE</button>
+                <div class="action-btn" id="toggle-binary">Binary System: OFF</div>
+                <div class="action-btn" id="toggle-dimensions">3D Drift: ON</div>
+            </div>
+        </div>
+
+        <div class="section-title">Attractor Parameters</div>
+        <div class="control-group">
+            <label>Singularity Gravity <span class="val" id="val-gravity">4.5</span></label>
+            <input type="range" id="param-gravity" min="0.5" max="12" step="0.1" value="4.5">
+        </div>
+
+        <div class="control-group">
+            <label>Vortex Velocity <span class="val" id="val-speed">2.2</span></label>
+            <input type="range" id="param-speed" min="0.1" max="6.0" step="0.1" value="2.2">
+        </div>
+
+        <div class="section-title">Density & Rendering</div>
+        <div class="control-group">
+            <label>Particle Cloud <span class="val" id="val-count">50K</span></label>
+            <input type="range" id="param-count" min="10000" max="80000" step="5000" value="50000">
+        </div>
+
+        <div class="control-group">
+            <label>Glow Tail Size <span class="val" id="val-size">1.6</span></label>
+            <input type="range" id="param-size" min="0.4" max="4.5" step="0.1" value="1.6">
+        </div>
+
+        <div class="section-title">Quantum Spectrum</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <div class="action-btn active" data-theme="nebula">Nebula Violet</div>
+                <div class="action-btn" data-theme="supernova">Supernova Gold</div>
+                <div class="action-btn" data-theme="pulsar">Cyan Pulsar</div>
+                <div class="action-btn" data-theme="hyperdrive">Hyperdrive</div>
+            </div>
+        </div>
+
+        <div id="perf-stats">
+            <span id="stat-particles">Active: 50,000</span>
+            <span id="stat-fps">FPS: --</span>
+        </div>
+    </div>
+
+    <button id="toggle-panel-btn">🛰️</button>
+
+
+
+    <div id="interaction-tip"><span id="tip-action">Click/tap or move pointer: reposition the vortex</span></div>
+
+<script>
+window.onload = function() {
+// Simulator state settings
+const params = {
+gravity: 4.5,
+vortexSpeed: 2.2,
+maxParticles: 80000,
+currentCount: 50000,
+particleSize: 1.6,
+damping: 0.985,
+spawnRadius: 32,
+theme: 'nebula',
+mouseMode: 'vortex',
+binaryMode: false,
+threeDDrift: true,
+pulseActive: false,
+pulseRadius: 0,
+pulseStrength: 0,
+pulseCenter: new THREE.Vector3(0,0,0)
+};
+const colorThemes = {
+nebula: [new THREE.Color('#9c27b0'), new THREE.Color('#3f51b5'), new THREE.Color('#00ffff'), new THREE.Color('#ff007f')],
+supernova: [new THREE.Color('#ff3d00'), new THREE.Color('#ffea00'), new THREE.Color('#ff0055'), new THREE.Color('#ff9100')],
+pulsar: [new THREE.Color('#00e5ff'), new THREE.Color('#00ff88'), new THREE.Color('#1a237e'), new THREE.Color('#00b0ff')],
+hyperdrive: [new THREE.Color('#ffffff'), new THREE.Color('#00ffff'), new THREE.Color('#ff00ff'), new THREE.Color('#3d5afe')]
+};
+let scene, camera, renderer, particleGeometry, particleMaterial, particlePoints;
+let positions, velocities, colors;
+// Core vectors
+let coreA = new THREE.Vector3(0, 0, 0);
+let coreB = new THREE.Vector3(0, 0, 0);
+let targetCoreA = new THREE.Vector3(0, 0, 0);
+let systemOrbitAngle = 0;
+let isInteracting = false;
+let prevPointerPos = { x: 0, y: 0 };
+let cameraRotation = { x: 0.5, y: 0.6 };
+let cameraRadius = 70;
+const raycaster = new THREE.Raycaster();
+const interactionPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const pointer2D = new THREE.Vector2();
+let lastTime = performance.now();
+let frameCount = 0;
+const uiPanel = document.getElementById('ui-panel');
+const closePanelBtn = document.getElementById('close-panel-btn');
+const togglePanelBtn = document.getElementById('toggle-panel-btn');
+const modeVortex = document.getElementById('mode-vortex');
+const modeOrbit = document.getElementById('mode-orbit');
+const toggleBinaryBtn = document.getElementById('toggle-binary');
+const toggleDimensionsBtn = document.getElementById('toggle-dimensions');
+const triggerPulseBtn = document.getElementById('trigger-pulse');
+const tipAction = document.getElementById('tip-action');
+function initEngine() {
+const container = document.getElementById('canvas-container');
+scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2('#010105', 0.007);
+camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+updateCameraPosition();
+renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(scene.fog.color);
+container.appendChild(renderer.domElement);
+particleGeometry = new THREE.BufferGeometry();
+positions = new Float32Array(params.maxParticles * 3);
+velocities = new Float32Array(params.maxParticles * 3);
+colors = new Float32Array(params.maxParticles * 3);
+generateGalaxyDiscs();
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+particleMaterial = new THREE.PointsMaterial({
+size: params.particleSize,
+map: createGlowTexture(),
+vertexColors: true,
+blending: THREE.AdditiveBlending,
+depthWrite: false,
+transparent: true,
+opacity: 0.9
+});
+particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+scene.add(particlePoints);
+window.addEventListener('resize', onWindowResize, false);
+setupInputListeners();
+setupUIControllers();
+}
+function createGlowTexture() {
+const canvas = document.createElement('canvas');
+canvas.width = 32;
+canvas.height = 32;
+const ctx = canvas.getContext('2d');
+const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+gradient.addColorStop(0, 'rgba(255,255,255,1)');
+gradient.addColorStop(0.2, 'rgba(240,250,255,0.85)');
+gradient.addColorStop(0.5, 'rgba(120,180,255,0.35)');
+gradient.addColorStop(1, 'rgba(0,0,0,0)');
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, 32, 32);
+return new THREE.CanvasTexture(canvas);
+}
+function generateGalaxyDiscs() {
+const activeThemeColors = colorThemes[params.theme];
+for (let i = 0; i < params.maxParticles; i++) {
+const i3 = i * 3;
+const angle = Math.random() * Math.PI * 2;
+const radius = Math.pow(Math.random(), 1.4) * 48 + 2;
+positions[i3] = Math.cos(angle) * radius;
+positions[i3 + 1] = (Math.random() - 0.5) * 1.5 * (1.0 - radius / 55);
+positions[i3 + 2] = Math.sin(angle) * radius;
+const orbSpeed = Math.sqrt(params.gravity / (radius + 0.1)) * params.vortexSpeed;
+velocities[i3] = -Math.sin(angle) * orbSpeed;
+velocities[i3 + 1] = (Math.random() - 0.5) * 0.05;
+velocities[i3 + 2] = Math.cos(angle) * orbSpeed;
+mapColorIndex(i3, radius);
+}
+particleGeometry.setDrawRange(0, params.currentCount);
+}
+function mapColorIndex(i3, radius) {
+const activeThemeColors = colorThemes[params.theme];
+const ratio = Math.min(radius / 48, 1.0);
+let selectedColor;
+if (ratio < 0.25) {
+selectedColor = activeThemeColors[0].clone().lerp(activeThemeColors[1], ratio / 0.25);
+} else if (ratio < 0.6) {
+selectedColor = activeThemeColors[1].clone().lerp(activeThemeColors[2], (ratio - 0.25) / 0.35);
+} else {
+selectedColor = activeThemeColors[2].clone().lerp(activeThemeColors[3], (ratio - 0.6) / 0.4);
+}
+colors[i3] = selectedColor.r;
+colors[i3 + 1] = selectedColor.g;
+colors[i3 + 2] = selectedColor.b;
+}
+function refreshSystemColors() {
+for (let i = 0; i < params.maxParticles; i++) {
+const i3 = i * 3;
+const radius = Math.sqrt(positions[i3]*positions[i3] + positions[i3+2]*positions[i3+2]);
+mapColorIndex(i3, radius);
+}
+particleGeometry.attributes.color.needsUpdate = true;
+}
+function updateCameraPosition() {
+camera.position.x = cameraRadius * Math.sin(cameraRotation.y) * Math.cos(cameraRotation.x);
+camera.position.z = cameraRadius * Math.cos(cameraRotation.y) * Math.cos(cameraRotation.x);
+camera.position.y = cameraRadius * Math.sin(cameraRotation.x);
+camera.lookAt(0, 0, 0);
+}
+function stepSimulationPhysics() {
+const pos = particleGeometry.attributes.position.array;
+const count = params.currentCount;
+const timeNow = performance.now() * 0.001;
+// Move core primary position via easing interpolation
+coreA.lerp(targetCoreA, 0.08);
+// Handle binary core positions if enabled
+if (params.binaryMode) {
+systemOrbitAngle += params.vortexSpeed * 0.015;
+const separationRadius = 10;
+coreB.set(
+coreA.x + Math.cos(systemOrbitAngle) * separationRadius,
+coreA.y,
+coreA.z + Math.sin(systemOrbitAngle) * separationRadius
+);
+}
+// Handle dark matter compression shockwave calculations
+if (params.pulseActive) {
+params.pulseRadius += 1.8;
+params.pulseStrength *= 0.94;
+if (params.pulseStrength < 0.05) params.pulseActive = false;
+}
+for (let i = 0; i < count; i++) {
+const i3 = i * 3;
+let px = pos[i3];
+let py = pos[i3 + 1];
+let pz = pos[i3 + 2];
+// Attractor logic compute block
+let pullForce = 0;
+let tx = 0, tz = 0;
+let targetNDX = 0, targetNDY = 0, targetNDZ = 0;
+// Core A calculation
+let dxA = coreA.x - px;
+let dyA = coreA.y - py;
+let dzA = coreA.z - pz;
+let distSqA = dxA * dxA + dyA * dyA + dzA * dzA;
+let distA = Math.sqrt(distSqA) || 0.1;
+if (!params.binaryMode) {
+pullForce = params.gravity / (distSqA + 2.5);
+targetNDX = dxA / distA;
+targetNDY = dyA / distA;
+targetNDZ = dzA / distA;
+tx = -dzA;
+tz = dxA;
+} else {
+// Binary Core double attractor math matrices
+let dxB = coreB.x - px;
+let dyB = coreB.y - py;
+let dzB = coreB.z - pz;
+let distSqB = dxB * dxB + dyB * dyB + dzB * dzB;
+let distB = Math.sqrt(distSqB) || 0.1;
+let forceA = (params.gravity * 0.6) / (distSqA + 2.5);
+let forceB = (params.gravity * 0.6) / (distSqB + 2.5);
+velocities[i3] += (dxA/distA)*forceA + (dxB/distB)*forceB;
+velocities[i3 + 1] += (dyA/distA)*forceA + (dyB/distB)*forceB;
+velocities[i3 + 2] += (dzA/distA)*forceA + (dzB/distB)*forceB;
+// Unified rotation framework centered around primary matrix mass
+tx = -dzA;
+tz = dxA;
+pullForce = 0; // Handled directly above
+}
+// Apply tangent swirl parameters
+let tangentLength = Math.sqrt(tx * tx + tz * tz);
+if (tangentLength > 0) {
+tx /= tangentLength;
+tz /= tangentLength;
+}
+const speedFalloff = (1.0 / (distA * 0.03 + 1.0));
+velocities[i3] += targetNDX * pullForce + tx * params.vortexSpeed * 0.13 * speedFalloff;
+if (params.threeDDrift) {
+velocities[i3 + 1] += targetNDY * pullForce + Math.sin(timeNow + i) * 0.015;
+} else {
+velocities[i3 + 1] += targetNDY * pullForce;
+velocities[i3 + 1] *= 0.8; // Flatten system fast
+}
+velocities[i3 + 2] += targetNDZ * pullForce + tz * params.vortexSpeed * 0.13 * speedFalloff;
+// Compute dark matter pulse ripple force
+if (params.pulseActive) {
+let pdx = px - params.pulseCenter.x;
+let pdy = py - params.pulseCenter.y;
+let pdz = pz - params.pulseCenter.z;
+let pDist = Math.sqrt(pdx * pdx + pdy * pdy + pdz * pdz) || 0.1;
+let deltaPulse = pDist - params.pulseRadius;
+if (Math.abs(deltaPulse) < 5.0) {
+let factor = (1.0 - Math.abs(deltaPulse) / 5.0) * params.pulseStrength;
+velocities[i3] += (pdx / pDist) * factor * 1.5;
+velocities[i3 + 1] += (pdy / pDist) * factor * 0.5;
+velocities[i3 + 2] += (pdz / pDist) * factor * 1.5;
+}
+}
+velocities[i3] *= params.damping;
+velocities[i3 + 1] *= params.damping;
+velocities[i3 + 2] *= params.damping;
+pos[i3] += velocities[i3];
+pos[i3 + 1] += velocities[i3 + 1];
+pos[i3 + 2] += velocities[i3 + 2];
+// Bound verification boundary checks / recycling loops
+if (distA < 0.5 || distA > 95) {
+const rAngle = Math.random() * Math.PI * 2;
+const rRadius = params.spawnRadius + Math.random() * 18;
+pos[i3] = coreA.x + Math.cos(rAngle) * rRadius;
+pos[i3 + 1] = coreA.y + (Math.random() - 0.5) * (params.threeDDrift ? 6 : 1);
+pos[i3 + 2] = coreA.z + Math.sin(rAngle) * rRadius;
+const cSpeed = Math.sqrt(params.gravity / rRadius) * params.vortexSpeed;
+velocities[i3] = -Math.sin(rAngle) * cSpeed;
+velocities[i3 + 1] = (Math.random() - 0.5) * 0.1;
+velocities[i3 + 2] = Math.cos(rAngle) * cSpeed;
+}
+}
+particleGeometry.attributes.position.needsUpdate = true;
+}
+function animateLoop() {
+requestAnimationFrame(animateLoop);
+stepSimulationPhysics();
+if (!isInteracting && params.mouseMode === 'vortex') {
+const elapsed = performance.now() * 0.0006;
+targetCoreA.x = Math.sin(elapsed) * 10;
+targetCoreA.z = Math.cos(elapsed * 0.8) * 10;
+}
+renderer.render(scene, camera);
+frameCount++;
+const time = performance.now();
+if (time >= lastTime + 1000) {
+document.getElementById('stat-fps').innerText = `FPS: ${Math.round((frameCount * 1000) / (time - lastTime))}`;
+frameCount = 0;
+lastTime = time;
+}
+}
+function executePointerRaycast(clientX, clientY) {
+pointer2D.x = (clientX / window.innerWidth) * 2 - 1;
+pointer2D.y = -(clientY / window.innerHeight) * 2 + 1;
+raycaster.setFromCamera(pointer2D, camera);
+const hitPoint = new THREE.Vector3();
+if (raycaster.ray.intersectPlane(interactionPlane, hitPoint) && hitPoint.length() < 65) {
+targetCoreA.copy(hitPoint);
+}
+}
+function setupInputListeners() {
+const surface = renderer.domElement;
+surface.addEventListener('mousedown', (e) => {
+isInteracting = true;
+prevPointerPos.x = e.clientX;
+prevPointerPos.y = e.clientY;
+if (params.mouseMode === 'vortex') executePointerRaycast(e.clientX, e.clientY);
+});
+window.addEventListener('mousemove', (e) => {
+if (!isInteracting) {
+if (params.mouseMode === 'vortex') executePointerRaycast(e.clientX, e.clientY);
+return;
+}
+if (params.mouseMode === 'orbit') {
+cameraRotation.y -= (e.clientX - prevPointerPos.x) * 0.006;
+cameraRotation.x = Math.max(-Math.PI/2.6, Math.min(Math.PI/2.6, cameraRotation.x - (e.clientY - prevPointerPos.y) * 0.006));
+updateCameraPosition();
+prevPointerPos.x = e.clientX;
+prevPointerPos.y = e.clientY;
+} else {
+executePointerRaycast(e.clientX, e.clientY);
+}
+});
+window.addEventListener('mouseup', () => { isInteracting = false; });
+// Mobile Touch Configurations
+surface.addEventListener('touchstart', (e) => {
+if (e.touches.length === 0) return;
+isInteracting = true;
+prevPointerPos.x = e.touches[0].clientX;
+prevPointerPos.y = e.touches[0].clientY;
+if (params.mouseMode === 'vortex') executePointerRaycast(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+window.addEventListener('touchmove', (e) => {
+if (!isInteracting || e.touches.length === 0) return;
+if (params.mouseMode === 'orbit') {
+cameraRotation.y -= (e.touches[0].clientX - prevPointerPos.x) * 0.009;
+cameraRotation.x = Math.max(-Math.PI/2.6, Math.min(Math.PI/2.6, cameraRotation.x - (e.touches[0].clientY - prevPointerPos.y) * 0.009));
+updateCameraPosition();
+prevPointerPos.x = e.touches[0].clientX;
+prevPointerPos.y = e.touches[0].clientY;
+} else {
+executePointerRaycast(e.touches[0].clientX, e.touches[0].clientY);
+}
+}, { passive: true });
+window.addEventListener('touchend', () => { isInteracting = false; });
+}
+function setupUIControllers() {
+closePanelBtn.onclick = () => { uiPanel.classList.add('collapsed'); };
+togglePanelBtn.onclick = () => { uiPanel.classList.remove('collapsed'); };
+modeVortex.onclick = () => {
+params.mouseMode = 'vortex';
+modeVortex.classList.add('active');
+modeOrbit.classList.remove('active');
+tipAction.innerText = "Click/tap or move pointer: reposition the vortex";
+};
+modeOrbit.onclick = () => {
+params.mouseMode = 'orbit';
+modeOrbit.classList.add('active');
+modeVortex.classList.remove('active');
+tipAction.innerText = "Drag to rotate the camera";
+};
+// Trigger Cosmic Expansion shockwave pulse button click
+triggerPulseBtn.onclick = () => {
+params.pulseActive = true;
+params.pulseRadius = 0;
+params.pulseStrength = 3.5;
+params.pulseCenter.copy(coreA);
+};
+// Binary System Switcher
+toggleBinaryBtn.onclick = () => {
+params.binaryMode = !params.binaryMode;
+toggleBinaryBtn.innerText = `Binary System: ${params.binaryMode ? 'ON' : 'OFF'}`;
+toggleBinaryBtn.classList.toggle('active', params.binaryMode);
+};
+// Height Drift Dimensional Switcher
+toggleDimensionsBtn.onclick = () => {
+params.threeDDrift = !params.threeDDrift;
+toggleDimensionsBtn.innerText = `3D Drift: ${params.threeDDrift ? 'ON' : 'OFF'}`;
+toggleDimensionsBtn.classList.toggle('active', params.threeDDrift);
+};
+// Input ranges scaling hooks
+document.getElementById('param-gravity').oninput = (e) => {
+params.gravity = parseFloat(e.target.value);
+document.getElementById('val-gravity').innerText = params.gravity.toFixed(1);
+};
+document.getElementById('param-speed').oninput = (e) => {
+params.vortexSpeed = parseFloat(e.target.value);
+document.getElementById('val-speed').innerText = params.vortexSpeed.toFixed(1);
+};
+document.getElementById('param-count').oninput = (e) => {
+params.currentCount = parseInt(e.target.value);
+document.getElementById('val-count').innerText = `${Math.round(params.currentCount / 1000)}K`;
+document.getElementById('stat-particles').innerText = `Active: ${params.currentCount.toLocaleString()}`;
+particleGeometry.setDrawRange(0, params.currentCount);
+};
+document.getElementById('param-size').oninput = (e) => {
+params.particleSize = parseFloat(e.target.value);
+document.getElementById('val-size').innerText = params.particleSize.toFixed(1);
+particleMaterial.size = params.particleSize;
+};
+const themes = document.querySelectorAll('[data-theme]');
+themes.forEach(t => {
+t.onclick = (e) => {
+themes.forEach(btn => btn.classList.remove('active'));
+e.target.classList.add('active');
+params.theme = e.target.getAttribute('data-theme');
+refreshSystemColors();
+};
+});
+}
+function onWindowResize() {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+}
+initEngine();
+animateLoop();
+};
+</script>
+</body>
+</html>

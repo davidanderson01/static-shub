@@ -117,7 +117,17 @@ a:focus-visible {
   background: #05060b;
 }
 
-.hero-artwork {
+.hero::before {
+  position: absolute;
+  z-index: -1;
+  inset: -8%;
+  background: linear-gradient(180deg, rgba(5, 6, 11, .2), rgba(5, 6, 11, .48)), url("images/1.svg") center / cover no-repeat;
+  content: "";
+  animation: cosmic-flow 52s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+.hero-content-frame {
   position: absolute;
   z-index: 0;
   top: 50%;
@@ -125,24 +135,6 @@ a:focus-visible {
   width: min(100vw, 100svh);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-}
-
-.hero-art {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.hero-motto-cover {
-  position: absolute;
-  z-index: 1;
-  top: 64%;
-  left: 0;
-  width: 100%;
-  height: 22%;
-  background: #05060b;
-  pointer-events: none;
 }
 
 .hero-content {
@@ -1016,6 +1008,11 @@ a:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes cosmic-flow {
+  from { background-position: 48% 52%; transform: scale(1) translate3d(-.4%, .2%, 0); }
+  to { background-position: 53% 47%; transform: scale(1.07) translate3d(.4%, -.2%, 0); }
+}
+
 @media (max-width: 700px) {
   .site-header {
     min-height: 4rem;
@@ -1038,7 +1035,7 @@ a:focus-visible {
     font-size: .57rem;
   }
 
-  .hero-artwork {
+  .hero-content-frame {
     top: 40%;
     width: min(100vw, 100svh);
   }

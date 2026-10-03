@@ -1,0 +1,809 @@
+<google_canvas type="code" lang="html" title="Cosmic Simulation Engine Ultra Pro Max">
+# Cosmic Simulation Engine Ultra Pro Max
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Simulation Engine Ultra Pro Max</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000002;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #f0f0f5;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Production Glassmorphic Control HUD */
+        #ui-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 10;
+            width: 340px;
+            max-height: calc(100% - 30px);
+            overflow-y: auto;
+            background: rgba(4, 4, 10, 0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 20px 60px 0 rgba(0, 0, 0, 0.8);
+            scrollbar-width: none;
+        }
+
+        #ui-panel::-webkit-scrollbar {
+            display: none;
+        }
+
+        #ui-panel.collapsed {
+            transform: translateX(-360px);
+            opacity: 0.1;
+        }
+
+        #toggle-panel-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            width: 46px;
+            height: 46px;
+            background: rgba(4, 4, 10, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 50%;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            font-size: 1.3rem;
+        }
+
+        #ui-panel.collapsed + #toggle-panel-btn {
+            display: flex;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding-bottom: 8px;
+        }
+
+        .panel-header h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: linear-gradient(45deg, #00ffff, #ff007f, #ffaa00, #a12bef);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #8fa0b0;
+            margin: 14px 0 6px 0;
+            font-weight: 700;
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #b5b5c8;
+            margin-bottom: 3px;
+        }
+
+        .control-group label span.val {
+            color: #00ffff;
+            font-family: monospace;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.06);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+            box-shadow: 0 0 5px #4a90e2;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            background: #00ffff;
+        }
+
+        .grid-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            color: #c0c0d0;
+            padding: 7px 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .action-btn.active {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.25), rgba(255, 0, 127, 0.25));
+            border-color: #00ffff;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
+        }
+
+        .gyro-btn {
+            background: linear-gradient(135deg, #00796b, #0288d1);
+            border: none;
+            color: white;
+            font-weight: bold;
+            grid-column: span 2;
+            padding: 8px;
+        }
+
+        .preset-select {
+            width: 100%;
+            background: rgba(10, 10, 25, 0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            color: #fff;
+            padding: 6px;
+            font-size: 0.75rem;
+            outline: none;
+            margin-bottom: 5px;
+        }
+
+        #telemetry-display {
+            background: rgba(0, 0, 4, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: #a0b0c0;
+        }
+
+        .telemetry-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        #interaction-tip {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(4, 4, 10, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.07);
+            font-size: 0.78rem;
+            pointer-events: none;
+            text-align: center;
+            color: #a0a8b5;
+            max-width: 90%;
+        }
+
+        #interaction-tip span {
+            color: #00ffff;
+            font-weight: 600;
+        }
+
+        #perf-stats {
+            margin-top: 10px;
+            font-size: 0.7rem;
+            color: #55556a;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 8px;
+        }
+    </style>
+    <!-- ThreeJS Stable Production Release Vendor CDN -->
+    <script src="https://cloudflare.com"></script>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="ui-panel">
+        <div class="panel-header">
+            <h1>COSMIC ENGINE ULTRA</h1>
+            <div class="close-btn" id="close-panel-btn">Hide HUD</div>
+        </div>
+
+        <div class="section-title">Navigation Deck</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <div class="action-btn active" id="mode-vortex">Warp Attractors</div>
+                <div class="action-btn" id="mode-orbit">Manual Orbit</div>
+            </div>
+        </div>
+
+        <div class="section-title">N-Body Singularity Field</div>
+        <div class="control-group">
+            <div class="grid-selector" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="action-btn" id="star-1">1 Star</div>
+                <div class="action-btn" id="star-2">Binary</div>
+                <div class="action-btn active" id="star-3">3-Body</div>
+            </div>
+        </div>
+
+        <div class="section-title">Quantum Slingshot Actions</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <div class="action-btn active" id="toggle-beaming">Doppler Beaming: ON</div>
+                <div class="action-btn active" id="toggle-slingshot">Hyper Ejections: ON</div>
+            </div>
+        </div>
+
+        <div class="section-title">Immersive Sensors</div>
+        <div class="control-group">
+            <div class="grid-selector">
+                <button class="action-btn gyro-btn" id="btn-gyro">📱 ACTIVATE MOBILE GYROSCOPE</button>
+                <div class="action-btn active" id="toggle-gyro-link">Gyro Link: ON</div>
+            </div>
+        </div>
+
+        <div class="section-title">Attractor System Physics</div>
+        <div class="control-group">
+            <label>Mass Magnitude <span class="val" id="val-gravity">7.5</span></label>
+            <input type="range" id="param-gravity" min="1.0" max="18" step="0.1" value="7.5">
+        </div>
+        <div class="control-group">
+            <label>Vortex Rotational Velocity <span class="val" id="val-speed">3.5</span></label>
+            <input type="range" id="param-speed" min="0.1" max="8.0" step="0.1" value="3.5">
+        </div>
+
+        <div class="section-title">Memory Presets Cache</div>
+
+--- Selection Engine Presets ---
+Spiral Andromeda Core (1-Star)
+Binary Plasma Helix (2-Star)
+Chaotic Chaos Horizon (3-Body)
+Hyper-Velocity Ejection Jet Storm
+
+💾 Save Parameters to Dashboard Custom Slot
+Live Connected Telemetry
+
+
+Gravitational Shear Stress:
+0.00 G
+
+
+Slingshot Ejection Velocity:
+0.00 ly/s
+
+
+Hardware Gyro Pitch/Roll:
+0° / 0°
+
+Active Cloud: 45,000
+FPS: --
+
+🛰️
+Production Engine Active: Doppler shift color spectrum calculating forward vectors to view orientation
+window.onload = function() {
+// Unified Production Architecture State Parameters Engine
+const params = {
+gravity: 7.5,
+vortexSpeed: 3.5,
+maxParticles: 80000,
+currentCount: 45000,
+particleSize: 1.3,
+damping: 0.988, // Slightly lower friction to enable massive slingshot escape bursts
+spawnRadius: 26,
+mouseMode: 'vortex',
+starSystemMode: 3,
+dopplerBeaming: true,
+slingshotActive: true,
+// Gyro tracking fields
+gyroEnabled: true,
+gyroAlpha: 0,
+gyroBeta: 0,
+initialGyroSet: false,
+baseAlpha: 0,
+baseBeta: 0,
+// Analytics loops variables
+shearStrain: 0,
+maxEjectionSpeed: 0,
+pulseActive: false,
+pulseRadius: 0,
+pulseStrength: 0,
+pulseCenter: new THREE.Vector3(0,0,0)
+};
+const dopplerBlueshift = new THREE.Color('#00ffff');
+const dopplerRedshift = new THREE.Color('#ff0055');
+const baseCoreColor = new THREE.Color('#9c27b0');
+let scene, camera, renderer, particleGeometry, particleMaterial, particlePoints;
+let positions, velocities, colors;
+// Attractors structures
+let starA = new THREE.Vector3(0, 0, 0);
+let starB = new THREE.Vector3(0, 0, 0);
+let starC = new THREE.Vector3(0, 0, 0);
+let targetStarA = new THREE.Vector3(0, 0, 0);
+let orbitTimeline = 0;
+let isInteracting = false;
+let prevPointerPos = { x: 0, y: 0 };
+let baseCameraRotation = { x: 0.6, y: 0.8 };
+let cameraRotationOffsets = { x: 0, y: 0 };
+let cameraRadius = 72;
+const raycaster = new THREE.Raycaster();
+const interactionPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const pointer2D = new THREE.Vector2();
+let lastTime = performance.now(), frameCount = 0;
+let lastTelemetryTime = performance.now();
+const uiPanel = document.getElementById('ui-panel');
+const closePanelBtn = document.getElementById('close-panel-btn');
+const togglePanelBtn = document.getElementById('toggle-panel-btn');
+const modeVortex = document.getElementById('mode-vortex');
+const modeOrbit = document.getElementById('mode-orbit');
+const btnGyro = document.getElementById('btn-gyro');
+const toggleGyroLink = document.getElementById('toggle-gyro-link');
+const toggleBeamingBtn = document.getElementById('toggle-beaming');
+const toggleSlingshotBtn = document.getElementById('toggle-slingshot');
+const presetSelector = document.getElementById('preset-selector');
+const btnSaveCustom = document.getElementById('btn-save-custom');
+const starBtns = [document.getElementById('star-1'), document.getElementById('star-2'), document.getElementById('star-3')];
+function initEngine() {
+const container = document.getElementById('canvas-container');
+scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2('#000002', 0.006);
+camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+updateCameraPosition();
+renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(scene.fog.color);
+container.appendChild(renderer.domElement);
+particleGeometry = new THREE.BufferGeometry();
+positions = new Float32Array(params.maxParticles * 3);
+velocities = new Float32Array(params.maxParticles * 3);
+colors = new Float32Array(params.maxParticles * 3);
+generateSubatomicCloud();
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+particleMaterial = new THREE.PointsMaterial({
+size: params.particleSize,
+map: createDynamicTexture(),
+vertexColors: true,
+blending: THREE.AdditiveBlending,
+depthWrite: false,
+transparent: true,
+opacity: 0.95
+});
+particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+scene.add(particlePoints);
+window.addEventListener('resize', onWindowResize, false);
+setupInputDeckListeners();
+bindControlSliders();
+initGyroSensorInterface();
+checkLocalStorageSlots();
+}
+function createDynamicTexture() {
+const canvas = document.createElement('canvas');
+canvas.width = 32; canvas.height = 32;
+const ctx = canvas.getContext('2d');
+const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+grad.addColorStop(0, 'rgba(255,255,255,1)');
+grad.addColorStop(0.2, 'rgba(235,245,255,0.9)');
+grad.addColorStop(0.55, 'rgba(140,80,255,0.35)');
+grad.addColorStop(1, 'rgba(0,0,0,0)');
+ctx.fillStyle = grad; ctx.fillRect(0, 0, 32, 32);
+return new THREE.CanvasTexture(canvas);
+}
+function generateSubatomicCloud() {
+for (let i = 0; i < params.maxParticles; i++) {
+const i3 = i * 3;
+const angle = Math.random() * Math.PI * 2;
+const r = Math.pow(Math.random(), 1.25) * 44 + 2;
+positions[i3] = Math.cos(angle) * r;
+positions[i3 + 1] = (Math.random() - 0.5) * 1.8 * (1.0 - r / 48);
+positions[i3 + 2] = Math.sin(angle) * r;
+const speedScalar = Math.sqrt(params.gravity / (r + 0.1)) * params.vortexSpeed;
+velocities[i3] = -Math.sin(angle) * speedScalar;
+velocities[i3 + 1] = (Math.random() - 0.5) * 0.04;
+velocities[i3 + 2] = Math.cos(angle) * speedScalar;
+colors[i3] = baseCoreColor.r; colors[i3+1] = baseCoreColor.g; colors[i3+2] = baseCoreColor.b;
+}
+particleGeometry.setDrawRange(0, params.currentCount);
+}
+function updateCameraPosition() {
+let finalX = baseCameraRotation.x + cameraRotationOffsets.x;
+let finalY = baseCameraRotation.y + cameraRotationOffsets.y;
+camera.position.x = cameraRadius * Math.sin(finalY) * Math.cos(finalX);
+camera.position.z = cameraRadius * Math.cos(finalY) * Math.cos(finalX);
+camera.position.y = cameraRadius * Math.sin(finalX);
+camera.lookAt(0, 0, 0);
+}
+function stepSimulationPhysics() {
+const pos = particleGeometry.attributes.position.array;
+const cols = particleGeometry.attributes.color.array;
+const count = params.currentCount;
+const time = performance.now() * 0.001;
+starA.lerp(targetStarA, 0.08);
+orbitTimeline += params.vortexSpeed * 0.012;
+// N-Body Multi-Star positioning calculation paths
+let calculatedShear = 0;
+if (params.starSystemMode === 2) {
+const sep = 11;
+starB.set(starA.x + Math.cos(orbitTimeline) * sep, starA.y, starA.z + Math.sin(orbitTimeline) * sep);
+calculatedShear = params.gravity / (starA.distanceToSquared(starB) + 1.0);
+} else if (params.starSystemMode === 3) {
+const sepB = 12; const sepC = 14;
+starB.set(starA.x + Math.cos(orbitTimeline) * sepB, starA.y + Math.sin(orbitTimeline * 0.5) * 2, starA.z + Math.sin(orbitTimeline) * sepB);
+starC.set(starA.x + Math.sin(orbitTimeline * 1.3) * sepC, starA.y + Math.cos(orbitTimeline * 0.7) * 3, starA.z + Math.cos(orbitTimeline * 1.3) * sepC);
+calculatedShear = (params.gravity * 2.5) / (starA.distanceTo(starB) + starB.distanceTo(starC) + 0.1);
+}
+params.shearStrain = calculatedShear;
+const viewVector = new THREE.Vector3();
+camera.getWorldDirection(viewVector);
+let globalMaxEjection = 0;
+for (let i = 0; i < count; i++) {
+const i3 = i * 3;
+let px = pos[i3], py = pos[i3 + 1], pz = pos[i3 + 2];
+let fx = 0, fy = 0, fz = 0;
+let rotX = -pz, rotZ = px;
+let mainDist = 0;
+// Gravity attraction vector fields resolution loops
+if (params.starSystemMode === 1) {
+let dx = starA.x - px; let dy = starA.y - py; let dz = starA.z - pz;
+let dSq = dxdx + dydy + dzdz || 0.1; let d = Math.sqrt(dSq);
+let pull = params.gravity / (dSq + 2.5);
+fx += (dx/d)pull; fy += (dy/d)pull; fz += (dz/d)pull;
+rotX = -dz; rotZ = dx; mainDist = d;
+} else if (params.starSystemMode === 2) {
+let dxA = starA.x - px; let dyA = starA.y - py; let dzA = starA.z - pz;
+let dSqA = dxAdxA + dyAdyA + dzAdzA || 0.1; let dA = Math.sqrt(dSqA);
+fx += (dxA/dA)((params.gravity0.65)/(dSqA+2.5));
+fy += (dyA/dA)((params.gravity0.65)/(dSqA+2.5));
+fz += (dzA/dA)((params.gravity*0.65)/(dSqA+2.5));
+let dxB = starB.x - px; let dyB = starB.y - py; let dzB = starB.z - pz;
+let dSqB = dxBdxB + dyBdyB + dzBdzB || 0.1; let dB = Math.sqrt(dSqB);
+fx += (dxB/dB)((params.gravity0.65)/(dSqB+2.5));
+fy += (dyB/dB)((params.gravity0.65)/(dSqB+2.5));
+fz += (dzB/dB)((params.gravity*0.65)/(dSqB+2.5));
+rotX = -dzA; rotZ = dxA; mainDist = dA;
+} else {
+let dxA = starA.x - px; let dyA = starA.y - py; let dzA = starA.z - pz;
+let dSqA = dxAdxA + dyAdyA + dzAdzA || 0.1; let dA = Math.sqrt(dSqA);
+fx += (dxA/dA)((params.gravity0.45)/(dSqA+2.5));
+fy += (dyA/dA)((params.gravity0.45)/(dSqA+2.5));
+fz += (dzA/dA)((params.gravity*0.45)/(dSqA+2.5));
+let dxB = starB.x - px; let dyB = starB.y - py; let dzB = starB.z - pz;
+let dSqB = dxBdxB + dyBdyB + dzBdzB || 0.1; let dB = Math.sqrt(dSqB);
+fx += (dxB/dB)((params.gravity0.45)/(dSqB+2.5));
+fy += (dyB/dB)((params.gravity0.45)/(dSqB+2.5));
+fz += (dzB/dB)((params.gravity*0.45)/(dSqB+2.5));
+let dxC = starC.x - px; let dyC = starC.y - py; let dzC = starC.z - pz;
+let dSqC = dxCdxC + dyCdyC + dzCdzC || 0.1; let dC = Math.sqrt(dSqC);
+fx += (dxC/dC)((params.gravity0.45)/(dSqC+2.5));
+fy += (dyC/dC)((params.gravity0.45)/(dSqC+2.5));
+fz += (dzC/dC)((params.gravity*0.45)/(dSqC+2.5));
+rotX = -dzA; rotZ = dxA; mainDist = dA;
+}
+let tLen = Math.sqrt(rotXrotX + rotZrotZ) || 0.1;
+rotX /= tLen; rotZ /= tLen;
+const falloff = (1.0 / (mainDist * 0.02 + 1.0));
+velocities[i3] += fx + rotX * params.vortexSpeed * 0.15 * falloff;
+velocities[i3 + 2] += fz + rotZ * params.vortexSpeed * 0.15 * falloff;
+velocities[i3 + 1] += fy + Math.sin(time*1.3 + i)*0.008;
+// Black Hole Hyper-Velocity Slingshot Ejection Algorithm
+// When particles enter the inner perimeter matrix, high gravity shears sling them out at hypersonic escape paths
+if (params.slingshotActive && mainDist < 3.8 && Math.random() < (0.01 + params.shearStrain * 0.005)) {
+let escapeAngle = Math.random() * Math.PI * 2;
+let jetDirectionX = Math.cos(escapeAngle);
+let jetDirectionZ = Math.sin(escapeAngle);
+// Inject hyper kinetic acceleration momentum thrust matrix velocities
+let forceSpike = 5.0 + (params.gravity * 0.6) + (params.shearStrain * 0.8);
+velocities[i3] = jetDirectionX * forceSpike;
+velocities[i3 + 1] = (Math.random() - 0.5) * 4.0;
+velocities[i3 + 2] = jetDirectionZ * forceSpike;
+// Flash ignite particle color parameters into glaring white thermal core signatures
+cols[i3] = 1.0; cols[i3+1] = 0.9; cols[i3+2] = 1.0;
+} else {
+// Relativistic Doppler Color Beaming Color Interpolator
+if (params.dopplerBeaming) {
+let velX = velocities[i3], velY = velocities[i3+1], velZ = velocities[i3+2];
+let velLen = Math.sqrt(velXvelX + velYvelY + velZ*velZ) || 0.1;
+if(velLen > globalMaxEjection) globalMaxEjection = velLen;
+let dot = (velX/velLen)*viewVector.x + (velY/velLen)*viewVector.y + (velZ/velLen)*viewVector.z;
+let lerpFactor = (dot + 1.0) * 0.5; // Scale 0-1
+let targetCol = baseCoreColor.clone();
+if (lerpFactor > 0.54) {
+targetCol.lerp(dopplerBlueshift, (lerpFactor - 0.54) * 2.1);
+} else if (lerpFactor < 0.46) {
+targetCol.lerp(dopplerRedshift, (0.46 - lerpFactor) * 2.1);
+}
+cols[i3] = targetCol.r; cols[i3+1] = targetCol.g; cols[i3+2] = targetCol.b;
+} else {
+cols[i3] = baseCoreColor.r; cols[i3+1] = baseCoreColor.g; cols[i3+2] = baseCoreColor.b;
+}
+}
+// Apply unified friction drag dampings
+velocities[i3] *= params.damping;
+velocities[i3 + 1] *= params.damping;
+velocities[i3 + 2] *= params.damping;
+pos[i3] += velocities[i3];
+pos[i3 + 1] += velocities[i3 + 1];
+pos[i3 + 2] += velocities[i3 + 2];
+// Bound evaluation limits / Recycle ejected elements back to accretion disc ranges
+if (mainDist < 0.3 || mainDist > 115) {
+const a = Math.random() * Math.PI * 2;
+const r = params.spawnRadius + Math.random() * 16;
+pos[i3] = starA.x + Math.cos(a) * r;
+pos[i3 + 1] = (Math.random()-0.5)*4;
+pos[i3 + 2] = starA.z + Math.sin(a) * r;
+const s = Math.sqrt(params.gravity / r) * params.vortexSpeed;
+velocities[i3] = -Math.sin(a) * s; velocities[i3 + 1] = 0; velocities[i3 + 2] = Math.cos(a) * s;
+}
+}
+params.maxEjectionSpeed = globalMaxEjection;
+particleGeometry.attributes.position.needsUpdate = true;
+particleGeometry.attributes.color.needsUpdate = true;
+}
+function handleOrientationChange(event) {
+if (!params.gyroEnabled) return;
+let alpha = event.alpha; let beta = event.beta;
+if (alpha === null || beta === null) return;
+if (!params.initialGyroSet) {
+params.baseAlpha = alpha; params.baseBeta = beta; params.initialGyroSet = true;
+}
+let diffAlpha = ((alpha - params.baseAlpha + 180) % 360) - 180;
+let diffBeta = beta - params.baseBeta;
+params.gyroAlpha = alpha; params.gyroBeta = beta;
+cameraRotationOffsets.y = (diffAlpha * Math.PI / 180) * 0.45;
+cameraRotationOffsets.x = (diffBeta * Math.PI / 180) * 0.45;
+updateCameraPosition();
+}
+function initGyroSensorInterface() {
+btnGyro.onclick = () => {
+if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+DeviceOrientationEvent.requestPermission()
+.then(permissionState => {
+if (permissionState === 'granted') {
+window.addEventListener('deviceorientation', handleOrientationChange, true);
+btnGyro.innerText = "🚀 GYRO SYSTEM ACTIVE";
+btnGyro.style.background = "#00c853";
+}
+}).catch(console.error);
+} else {
+window.addEventListener('deviceorientation', handleOrientationChange, true);
+btnGyro.innerText = "🚀 GYRO SYSTEM ACTIVE";
+btnGyro.style.background = "#00c853";
+}
+};
+}
+function updateTelemetryHUD() {
+const now = performance.now();
+if (now >= lastTelemetryTime + 200) {
+document.getElementById('tel-shear').innerText = ${params.shearStrain.toFixed(2)} G;
+// Convert vector speed scalar to relativistic aesthetic light-years calculation representation readings
+let lyricSpeed = params.maxEjectionSpeed * 12.45;
+document.getElementById('tel-ejection').innerText = ${lyricSpeed.toFixed(2)} ly/s;
+document.getElementById('tel-gyro').innerText = ${Math.round(params.gyroAlpha)}° / ${Math.round(params.gyroBeta)}°;
+lastTelemetryTime = now;
+}
+}
+function animateLoop() {
+requestAnimationFrame(animateLoop);
+stepSimulationPhysics();
+updateTelemetryHUD();
+if (!isInteracting && params.mouseMode === 'vortex') {
+const elapsed = performance.now() * 0.0005;
+targetStarA.x = Math.sin(elapsed) * 10;
+targetStarA.z = Math.cos(elapsed * 0.75) * 10;
+}
+renderer.render(scene, camera);
+frameCount++; const t = performance.now();
+if (t >= lastTime + 1000) {
+document.getElementById('stat-fps').innerText = FPS: ${Math.round((frameCount*1000)/(t-lastTime))};
+frameCount = 0; lastTime = t;
+}
+}
+function pointerRaycastUpdate(clientX, clientY) {
+pointer2D.x = (clientX / window.innerWidth) * 2 - 1;
+pointer2D.y = -(clientY / window.innerHeight) * 2 + 1;
+raycaster.setFromCamera(pointer2D, camera);
+const hit = new THREE.Vector3();
+raycaster.ray.intersectPlane(interactionPlane, hit);
+if (hit.length() < 65) targetStarA.copy(hit);
+}
+function setupInputDeckListeners() {
+const surface = renderer.domElement;
+surface.addEventListener('mousedown', (e) => {
+isInteracting = true; prevPointerPos.x = e.clientX; prevPointerPos.y = e.clientY;
+if (params.mouseMode === 'vortex') pointerRaycastUpdate(e.clientX, e.clientY);
+});
+window.addEventListener('mousemove', (e) => {
+if (!isInteracting) {
+if (params.mouseMode === 'vortex') pointerRaycastUpdate(e.clientX, e.clientY);
+return;
+}
+if (params.mouseMode === 'orbit') {
+baseCameraRotation.y -= (e.clientX - prevPointerPos.x) * 0.005;
+baseCameraRotation.x = Math.max(-Math.PI/2.7, Math.min(Math.PI/2.7, baseCameraRotation.x - (e.clientY - prevPointerPos.y) * 0.005));
+updateCameraPosition();
+prevPointerPos.x = e.clientX; prevPointerPos.y = e.clientY;
+} else {
+pointerRaycastUpdate(e.clientX, e.clientY);
+}
+});
+window.addEventListener('mouseup', () => isInteracting = false);
+}
+function bindControlSliders() {
+closePanelBtn.onclick = () => uiPanel.classList.add('collapsed');
+togglePanelBtn.onclick = () => uiPanel.classList.remove('collapsed');
+modeVortex.onclick = () => {
+params.mouseMode = 'vortex'; modeVortex.classList.add('active'); modeOrbit.classList.remove('active');
+};
+modeOrbit.onclick = () => {
+params.mouseMode = 'orbit'; modeOrbit.classList.add('active'); modeVortex.classList.remove('active');
+};
+toggleGyroLink.onclick = () => {
+params.gyroEnabled = !params.gyroEnabled;
+if(!params.gyroEnabled) { cameraRotationOffsets.set(0,0); updateCameraPosition(); }
+toggleGyroLink.innerText = Gyro Link: ${params.gyroEnabled ? 'ON' : 'OFF'};
+toggleGyroLink.classList.toggle('active', params.gyroEnabled);
+};
+toggleBeamingBtn.onclick = () => {
+params.dopplerBeaming = !params.dopplerBeaming;
+toggleBeamingBtn.innerText = Doppler Beaming: ${params.dopplerBeaming ? 'ON' : 'OFF'};
+toggleBeamingBtn.classList.toggle('active', params.dopplerBeaming);
+};
+toggleSlingshotBtn.onclick = () => {
+params.slingshotActive = !params.slingshotActive;
+toggleSlingshotBtn.innerText = Hyper Ejections: ${params.slingshotActive ? 'ON' : 'OFF'};
+toggleSlingshotBtn.classList.toggle('active', params.slingshotActive);
+};
+starBtns.forEach((btn, idx) => {
+btn.onclick = () => {
+starBtns.forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+params.starSystemMode = idx + 1;
+};
+});
+presetSelector.onchange = (e) => applyPredefinedPreset(e.target.value);
+btnSaveCustom.onclick = () => {
+const customPreset = {
+gravity: params.gravity, vortexSpeed: params.vortexSpeed,
+starSystemMode: params.starSystemMode, dopplerBeaming: params.dopplerBeaming, slingshotActive: params.slingshotActive
+};
+localStorage.setItem('cosmic_ultra_preset', JSON.stringify(customPreset));
+alert("System parameters safely cached into LocalStorage dashboard profile slot!");
+checkLocalStorageSlots();
+};
+document.getElementById('param-gravity').oninput = (e) => {
+params.gravity = parseFloat(e.target.value);
+document.getElementById('val-gravity').innerText = params.gravity.toFixed(1);
+};
+document.getElementById('param-speed').oninput = (e) => {
+params.vortexSpeed = parseFloat(e.target.value);
+document.getElementById('val-speed').innerText = params.vortexSpeed.toFixed(1);
+};
+document.getElementById('param-count').oninput = (e) => {
+params.currentCount = parseInt(e.target.value);
+document.getElementById('val-count').innerText = ${Math.round(params.currentCount/1000)}K;
+document.getElementById('stat-particles').innerText = Active Cloud: ${params.currentCount.toLocaleString()};
+particleGeometry.setDrawRange(0, params.currentCount);
+};
+}
+function applyPredefinedPreset(key) {
+let data = null;
+if (key === 'galaxy') {
+data = { gravity: 4.5, vortexSpeed: 2.2, starSystemMode: 1, dopplerBeaming: true, slingshotActive: false };
+} else if (key === 'binary_dance') {
+data = { gravity: 7.5, vortexSpeed: 3.5, starSystemMode: 2, dopplerBeaming: true, slingshotActive: true };
+} else if (key === 'triple_chaos') {
+data = { gravity: 9.5, vortexSpeed: 4.2, starSystemMode: 3, dopplerBeaming: true, slingshotActive: true };
+} else if (key === 'ejection_storm') {
+data = { gravity: 15.0, vortexSpeed: 7.5, starSystemMode: 3, dopplerBeaming: true, slingshotActive: true };
+} else if (key === 'custom') {
+data = JSON.parse(localStorage.getItem('cosmic_ultra_preset'));
+}
+if (!data) return;
+params.gravity = data.gravity; params.vortexSpeed = data.vortexSpeed;
+params.starSystemMode = data.starSystemMode; params.dopplerBeaming = data.dopplerBeaming; params.slingshotActive = data.slingshotActive;
+document.getElementById('param-gravity').value = params.gravity;
+document.getElementById('val-gravity').innerText = params.gravity.toFixed(1);
+document.getElementById('param-speed').value = params.vortexSpeed;
+document.getElementById('val-speed').innerText = params.vortexSpeed.toFixed(1);
+toggleBeamingBtn.innerText = Doppler Beaming: ${params.dopplerBeaming ? 'ON' : 'OFF'};
+toggleBeamingBtn.classList.toggle('active', params.dopplerBeaming);
+toggleSlingshotBtn.innerText = Hyper Ejections: ${params.slingshotActive ? 'ON' : 'OFF'};
+toggleSlingshotBtn.classList.toggle('active', params.slingshotActive);
+starBtns.forEach((b, idx) => b.classList.toggle('active', params.starSystemMode === (idx + 1)));
+}
+function checkLocalStorageSlots() {
+if (localStorage.getItem('cosmic_ultra_preset')) {
+if (!document.querySelector('option[value="custom"]')) {
+const opt = document.createElement('option'); opt.value = 'custom';
+opt.innerText = '⭐ Load Custom Saved Dashboard Preset';
+presetSelector.appendChild(opt);
+}
+}
+}
+function onWindowResize() {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+}
+initEngine();
+animateLoop();
+};
+
+
+</google_canvas>

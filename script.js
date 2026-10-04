@@ -2,6 +2,7 @@ const rotatingWord = document.querySelector(".rotating-word");
 
 const rotatingWords = [
   "Craft",
+  "Better",
   "Design",
   "Life",
   "Intention",
@@ -19,7 +20,8 @@ const rotatingWords = [
   "The Future",
   "The Next Generation",
   "The Next Wave",
-  "Awareness"
+  "Awareness",
+  "Moments"
 ];
 const identityWords = ["You", "Us", "We", "I", "Ours"];
 const rotationInterval = 2000;

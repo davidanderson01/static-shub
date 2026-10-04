@@ -26,3 +26,13 @@ For a first deployment, create a Cloudflare Pages project and use Direct Upload.
 This is a plain static site, so it does not need a build command. After deployment, check the generated Pages URL and confirm that the page artwork, book covers, and venture logos load. Add `elevate-craft.com` as a custom domain in the Pages project settings when the domain is ready.
 
 For future updates, deploy the changed site files again or connect a Git repository to Cloudflare Pages for automatic deployments.
+
+## Deploy MaskOff at its subdomain
+
+Deploy `Maskoff/` as a separate Cloudflare Pages project so its files are served from the subdomain root:
+
+- Set the project root directory to `Maskoff`.
+- Leave the build command empty and set the build output directory to `.`.
+- In the Pages project, add `maskoff.elevate-craft.com` under **Custom domains** and confirm its DNS record is active.
+
+The MaskOff page is plain HTML and CSS and does not need a build step.

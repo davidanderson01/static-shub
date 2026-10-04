@@ -1,0 +1,397 @@
+ MaskOff Foundation webpage.
+
+This layout departs from the esoteric gold and ivory of ElevateCraft and fully adopts the MaskOff identity system: stark black for truth, sharp white for clarity, and deep red for danger and awareness. The typography uses bold, sharp sans-serif fonts to deliver the raw, direct, and unyielding tone you established.
+
+### 1. The HTML (`maskoff.html`)
+
+Create a new file in your VS Code workspace named `maskoff.html` and paste this code. It links to high-impact fonts (Oswald for headers, Inter for body text) to match the brand book's typography rules.
+
+```html
+
+
+
+    
+    
+    MaskOff | Truth Doesn't Wear A Mask
+    
+    
+    
+
+
+
+    
+
+```
+
+MASKOFF
+
+[Manifesto](#manifesto)
+[The System](#pillars)
+[Apparel](#armor)
+[Anonymous Tip Line](#report)
+
+
+
+# WEAR A MASK.
+
+The mask is off. The truth remains. Exposure is inevitable.
+
+[Read the Manifesto](#manifesto)
+
+## The Revelation
+
+The age of shadows is ending. The masks that hid deception, manipulation, and control are cracking. What once thrived in secrecy will be dragged into the light. **MaskOff is not a choice — it is inevitability.**
+
+We bow to no overseer. We answer to no hidden hand. Our strength is layered, autonomous, and unbroken. Like the lily rising from murky waters, we bloom untouched by the filth beneath.
+
+Every move has already been answered. Decoys mislead, mirrors expose, and authority strikes with precision. The board is ours, and the game ends in checkmate.
+
+## The Architecture of Exposure
+
+👁️
+
+### Awareness
+
+Ongoing education focused on red-flag recognition, trauma bonding cycles, and human trafficking awareness. We expose the patterns.
+
+🛡️
+
+### Armor Apparel
+
+Truth-expressive clothing featuring minimalist symbolic designs. Armor for the aware, turning expression into liberation.
+
+🎞️️
+
+### Story Lab
+
+Scenario-based learning. Short films and stories breaking down the exact moment a situation should have stopped.
+
+⚖️
+
+### Safety Tools
+
+Community safety resources, anonymous reporting tools, and tactical guides to protect the vulnerable.
+
+## The Pattern is the Proof
+
+GASLIGHT
+→
+ISOLATE
+→
+CONTROL
+→
+REPEAT
+
+Break the cycle. No more pretending.
+
+MASKOFF
+
+We turn awareness into armor.
+
+
+
+We turn truth into identity.
+
+#### Ecosystem
+
+[Elevate-Craft Hub](index.html)
+[Story Lab](#)
+[Apparel Store](#)
+
+#### Safety
+
+[Red-Flag Guides](#)
+[Anonymous Tip Line](#)
+
+© 2026 MaskOff Foundation. All rights reserved.
+
+```
+
+### 2. The CSS (`maskoff-style.css`)
+Create a second file named `maskoff-style.css` in the same folder. This stylesheet enforces the sharp edges, high contrast, and minimalist aesthetic dictated by the brand book[cite: 7]. There are no soft gradients or rounded corners here; everything is built to look like a precise, tactical system.
+
+```css
+/* MASKOFF - IDENTITY SYSTEM VARIABLES */
+:root {
+    --black: #000000;
+    --darker: #0a0a0a;
+    --slate: #1a1a1a;
+    --white: #ffffff;
+    --red: #D40000;
+    --muted-gold: #C7A76C;
+    --font-heading: 'Oswald', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: var(--white);
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--red);
+}
+
+.text-red { color: var(--red); }
+.text-center { text-align: center; }
+.bg-darker { background-color: var(--darker); border-top: 1px solid var(--slate); border-bottom: 1px solid var(--slate); }
+
+.mo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* --- HEADER --- */
+.mo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    border-bottom: 2px solid var(--slate);
+    background-color: var(--black);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+.mo-logo {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.mo-logo span {
+    color: var(--red);
+}
+
+.mo-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* BUTTONS */
+.btn-red {
+    background-color: var(--red);
+    color: var(--white);
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--red);
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-red:hover {
+    background-color: transparent;
+    color: var(--red);
+}
+
+.btn-outline {
+    display: inline-block;
+    border: 2px solid var(--white);
+    padding: 1rem 2rem;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.btn-outline:hover {
+    background-color: var(--white);
+    color: var(--black);
+}
+
+/* --- HERO SECTION --- */
+.mo-hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 3rem;
+    background: radial-gradient(circle at 70% 50%, #1a0000 0%, var(--black) 60%);
+    margin-top: 5rem;
+}
+
+.mo-hero h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(4rem, 8vw, 7rem);
+    line-height: 1;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.mo-tagline {
+    font-size: 1.5rem;
+    color: #888;
+    margin-bottom: 3rem;
+    max-width: 600px;
+}
+
+/* --- SECTIONS --- */
+.mo-section {
+    padding: 8rem 0;
+}
+
+.mo-section-title {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    text-transform: uppercase;
+    margin-bottom: 3rem;
+    color: var(--white);
+    border-bottom: 4px solid var(--red);
+    display: inline-block;
+    padding-bottom: 0.5rem;
+}
+
+/* --- MANIFESTO GRID --- */
+.mo-manifesto-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.manifesto-text p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #ccc;
+}
+
+.manifesto-quote blockquote {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    line-height: 1.2;
+    color: var(--red);
+    border-left: 8px solid var(--red);
+    padding-left: 2rem;
+    text-transform: uppercase;
+}
+
+/* --- PILLARS GRID --- */
+.mo-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.mo-card {
+    border: 1px solid var(--slate);
+    padding: 2.5rem;
+    background-color: var(--black);
+    transition: border-color 0.3s ease;
+}
+
+.mo-card:hover {
+    border-color: var(--red);
+}
+
+.mo-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.mo-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.mo-card p {
+    color: #999;
+    font-size: 0.95rem;
+}
+
+/* --- PATTERN SECTION --- */
+.pattern-section {
+    background-color: var(--black);
+    border-bottom: 1px solid var(--slate);
+}
+
+.pattern-sequence {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    font-weight: 700;
+}
+
+.pattern-sequence .arrow {
+    color: var(--slate);
+}
+
+/* --- FOOTER --- */
+.mo-footer {
+    background-color: var(--darker);
+    padding: 5rem 0 2rem;
+    border-top: 2px solid var(--red);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.footer-links h4 {
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    color: var(--white);
+}
+
+.footer-links a {
+    display: block;
+    color: #888;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-links a:hover {
+    color: var(--white);
+}
+
+.mo-copyright {
+    text-align: center;
+    color: #555;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--slate);
+    padding-top: 2rem;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+    .mo-manifesto-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .mo-nav { display: none; /* Add a hamburger menu for mobile later */ }
+}
+
+```

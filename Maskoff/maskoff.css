@@ -175,7 +175,7 @@ h1, h2, h3 { font-family: "Oswald", sans-serif; font-weight: 600; }
     white-space: nowrap;
   }
   .mo-hero { min-height: 100svh; }
-  .mo-hero-video { object-position: 35% center; }
+  .mo-hero-video { object-position: 50% center; }
   .mo-hero-shade { background: linear-gradient(90deg, rgba(5, 6, 7, .78), rgba(5, 6, 7, .36)), linear-gradient(0deg, rgba(5, 6, 7, .65), transparent 55%); }
   .mo-hero-content { width: 100%; padding: 2rem 1.25rem 4rem; }
   .mo-hero h1 { font-size: clamp(5rem, 22vw, 8rem); }

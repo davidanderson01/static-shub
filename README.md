@@ -27,6 +27,12 @@ This is a plain static site, so it does not need a build command. After deployme
 
 For future updates, deploy the changed site files again or connect a Git repository to Cloudflare Pages for automatic deployments.
 
+### Include Elevate-Mindfulness
+
+The Mindfulness experience is built into a static site folder alongside the homepage. From the repository root, run `npm install --prefix Mindfulness` and `npm run build --prefix Mindfulness`. Set the Cloudflare Pages build output directory to `public`; the build assembles the existing homepage and places the built Mindfulness website under `public/Mindfulness/`.
+
+The Mindfulness site uses browser APIs and local storage, so its meditation, breathing, sound, movement, map, offline playback, and acoustic song-composer features run client-side. Google Lyria song generation requires a private server-side API key and is unavailable in this static-only deployment; saved Lyria tracks remain playable in the song library.
+
 ## Deploy MaskOff at its subdomain
 
 Deploy `Maskoff/` as a separate Cloudflare Pages project so its files are served from the subdomain root:

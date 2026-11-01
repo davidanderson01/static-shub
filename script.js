@@ -22,7 +22,8 @@ const rotatingWords = [
   "The Next Wave",
   "Awareness",
   "Moments",
-  "Mindfulness"
+  "Mindfulness",
+  "Graphic Wizard"
 ];
 const identityWords = ["You", "Us", "We", "I", "Ours"];
 const rotationInterval = 2000;
